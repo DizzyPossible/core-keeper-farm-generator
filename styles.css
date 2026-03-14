@@ -125,8 +125,8 @@ span {
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     max-width: 300px;
-    width: 250px;
-    flex: 0 0 250px;
+    width: 300px;
+    flex: 0 0 300px;
 }
 
 #info_rating_table {

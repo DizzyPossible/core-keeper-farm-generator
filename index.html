@@ -13,10 +13,10 @@
         <!-- Farm selection -->
         <label for="farm">Select a farm:</label>
         <select name="farm" id="farm_selector" onchange="farm_selection_changed()">
-            <optgroup label="critter_farm">
+            <optgroup id="critter_farm" label="critter farms">
                 <option value="one_critter">critter farm (only one critter type)</option>
             </optgroup>
-            <optgroup label="fish_farm">
+            <optgroup id="fish_farm" label="fish farms">
                 <option value="five_fish">fish farm (up to five fish types)</option>
             </optgroup>
         </select>
@@ -105,7 +105,7 @@
             
             const farm_selection = document.getElementById("farm_selector");
             const farm_option = farm_selection.selectedOptions[0];
-            const farm_group = farm_option.parentElement.label;
+            const farm_group = farm_option.parentElement.id;
             const farm_name = farm_option.value;
             const config_files = [`./farm_layouts/${farm_group}/${farm_name}/config.json`]
             Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
@@ -130,7 +130,7 @@
             const farm_selection = document.getElementById("farm_selector");
             const farm_option = farm_selection.selectedOptions[0];
 
-            const farm_group = farm_option.parentElement.label;
+            const farm_group = farm_option.parentElement.id;
             const farm_name = farm_option.value;
             const config_files = [`./farm_layouts/${farm_group}/${farm_name}/config.json`]
             
@@ -183,7 +183,7 @@
             const selected_background = background_selection.selectedOptions[0].value;
 
             const farm_option = farm_selection.selectedOptions[0];
-            const farm_group = farm_option.parentElement.label;
+            const farm_group = farm_option.parentElement.id;
             const farm_name = farm_option.value;
 
             const config_files = ["./icons/config.json", "./backgrounds/config.json", `./farm_layouts/${farm_group}/${farm_name}/config.json`]
