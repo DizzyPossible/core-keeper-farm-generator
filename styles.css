@@ -1,0 +1,112 @@
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: rgb(240, 240, 240);
+    color: black;
+    border: 1px solid rgb(127, 127, 127);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.btn:hover {
+    background-color: #cccccc;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f8;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.farm-container {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    max-width: 500px;
+    width: 100%;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+}
+
+#output_layers {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    padding-bottom: 40px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+select, input[type="range"] {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+}
+
+input[type="range"] {
+    padding: 0;
+    height: 6px;
+    accent-color: #3498db;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 25px;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.btn {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: #2ecc71;
+    color: white;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #27ae60;
+}
+
+span {
+    font-weight: 500;
+    margin-left: 5px;
+}
