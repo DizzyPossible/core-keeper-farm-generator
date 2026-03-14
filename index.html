@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Farm layout Generator</h2>
+    
+    <!-- Inputs -->
+    <label for="farm">Select a farm:</label>
+    <select name="farm" id="farm_selector"  onchange="farm_selection_changed()">
+        <optgroup label="critter_farm">
+            <option value="one_critter">one critter</option>
+        </optgroup>
+        <optgroup label="fish_farm">
+            <option value="five_fish">five fish</option>
+        </optgroup>
+    </select>
+    <br>
+    <br>
+    
+    <label id="scale_x_slider_label" for="farm_size" style="display:none">
+        <span id="scale_x_slider_label_text">Value</span>: 
+        <span id="scale_x_slider_label_value">50</span>
+    </label>
+    <br>
+    <input type="range" id="scale_x_slider" min="0" max="0" step="2" value="0" style="display:none" oninput="scale_x_slider_changed()">
+    <br>
+    <br>
+    
+    <label for="background_selection">Select a background:</label>
+    <select name="background_selection" id="background_selection"  onchange="generate_farm()">
+        <optgroup label="default">
+            <option value="default">default</option>
+        </optgroup>
+        <optgroup label="black-blue">
+            <option value="blue_2x2">blue_2x2</option>
+            <option value="blue_3x3">blue_3x3</option>
+            <option value="blue_4x4">blue_4x4</option>
+            <option value="blue_5x5">blue_5x5</option>
+        </optgroup>
+    </select>
+    <br>
+    <br>
+
+    <label id="image_size_slider_label" for="farm_size">
+        <span id="image_size_slider_label_text">Size of output images</span>: 
+        <span id="image_size_slider_label_value">3</span>
+    </label>
+    <br>
+    <input type="range" id="image_size_slider" min="1" max="10" value="3" oninput="image_size_slider_changed()">
+    <br>
+    <br>
+
+    <button onclick="generate_farm()">Update</button>
+    <br>
+    <br>
+
+    <!-- Output -->
+    <div id="output_layers"></div>
+
+    <script>
+        image_size_slider_changed()
+        farm_selection_changed()
+
+        function scale_x_slider_changed() {
+            const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
+            const scale_x_slider = document.getElementById("scale_x_slider");
+            scale_x_slider_label_value.textContent = scale_x_slider.value;
+            //generate_farm()
+        }
+
+        function image_size_slider_changed() {
+            const image_size_slider_label_value = document.getElementById("image_size_slider_label_value");
+            const image_size_slider = document.getElementById("image_size_slider");
+            image_size_slider_label_value.textContent = image_size_slider.value;
+            //generate_farm()
+        }
+
+        function farm_selection_changed() {
+            const farm_selection = document.getElementById("farm_selector");
+            const farm_option = farm_selection.selectedOptions[0];
+
+            const farm_group = farm_option.parentElement.label;
+            const farm_name = farm_option.value;
+            const config_files = [`./farm_layouts/${farm_group}/${farm_name}/config.json`]
+            
+            Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
+                
+                const farm_config = jsonArray[0]
+                
+                const scale_x_slider_label = document.getElementById("scale_x_slider_label");
+                const scale_x_slider_label_text = document.getElementById("scale_x_slider_label_text");
+                const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
+                const scale_x_slider = document.getElementById("scale_x_slider");
+
+                let scale_x_config = farm_config.scaling.scale_x
+                if (scale_x_config.enabled) {
+                    scale_x_slider_label.style = ""
+                    scale_x_slider_label_text.textContent  = scale_x_config.label
+                    scale_x_slider_label_value.textContent  = scale_x_config.min
+                    scale_x_slider.style = ""
+                    scale_x_slider.min = scale_x_config.min
+                    scale_x_slider.max = scale_x_config.max
+                    scale_x_slider.step = scale_x_config.step
+                    scale_x_slider.value = scale_x_config.min
+
+                } else {
+                    scale_x_slider_label.style = "display:none"
+                    scale_x_slider.style = "display:none"
+                }
+
+            })
+            .catch(err => console.error("Failed to load JSON files", err));
+            generate_farm()
+        }
+
+        function generate_farm() {
+            const farm_selection = document.getElementById("farm_selector");
+            const img = document.getElementById("preview");
+            
+            const background_selection = document.getElementById("background_selection");
+            const selected_background = background_selection.selectedOptions[0].value;
+
+            const farm_option = farm_selection.selectedOptions[0];
+            const farm_group = farm_option.parentElement.label;
+            const farm_name = farm_option.value;
+
+            const config_files = ["./icons/config.json", "./backgrounds/config.json", `./farm_layouts/${farm_group}/${farm_name}/config.json`]
+
+            Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
+                
+                const icon_config = jsonArray[0]
+                const bg_config = jsonArray[1]
+                const farm_config = jsonArray[2]
+
+                const icon_size = icon_config.icon_size
+
+                // get order of components
+                const farm_sclaling_x = farm_config.scaling.scale_x
+                const farm_components = farm_config.scaling.components
+
+                let scale_x = 0
+                if (farm_sclaling_x.enabled) {
+                    const scale_x_slider_value = parseFloat(document.getElementById('scale_x_slider').value);
+                    scale_x = (scale_x_slider_value - farm_sclaling_x.min) / farm_sclaling_x.step
+                }
+
+                let component_order = []
+                let component_offset = []
+                let current_offset = 0
+                for(let component of farm_components) {
+                    if (component.type == "base") {
+                        component_order.push(component.name)
+                        component_offset.push(current_offset)
+                        current_offset += component.width
+                    } else if (component.type == "scale_x") {
+                        for(let i = 0;i < scale_x;i++) {
+                            component_order.push(component.name)
+                            component_offset.push(current_offset)
+                            current_offset += component.width
+                        }
+                    }
+                }
+
+                // calculate canvas size and scale
+                const offsets = farm_config.offsets
+                const tile_width = (current_offset + offsets[1] + offsets[3])
+                const tile_height = (farm_components[0].height + offsets[1] + offsets[3])
+
+                const image_size_multiplier = parseFloat(document.getElementById('image_size_slider').value);
+                canvas_width = tile_width * icon_size * image_size_multiplier
+                canvas_height = tile_height * icon_size * image_size_multiplier
+
+                // create layer canvases
+                const output_div = document.getElementById("output_layers");
+                output_div.innerHTML = "";
+                let canvases = []
+                let ctxs = []
+                for (let n = 0; n < farm_config.layers.length+1; n++) {
+                    const canvas = document.createElement("canvas");
+                    canvas.id = `canvas_${n}`;
+                    canvas.width = tile_width * icon_size * image_size_multiplier;
+                    canvas.height = tile_height * icon_size * image_size_multiplier;
+                    canvas.style.display = "block";
+                    canvas.style.marginBottom = "10px";
+
+                    if (n != 0) {
+                        const label = document.createElement("label");
+                        label.textContent = `Layer ${n}: ${farm_config.layers[n-1].icon}s`;
+                        output_div.appendChild(label);
+                    }
+                    output_div.appendChild(canvas);
+                    canvases.push(canvas);
+                    let ctx = canvas.getContext("2d");
+                    ctx.scale(image_size_multiplier, image_size_multiplier);
+                    ctx.imageSmoothingEnabled = false; 
+                    ctxs.push(ctx);
+                }                
+
+                // draw background
+                let bg = getBackground(bg_config, selected_background);
+                let bg_img = await loadImage(`./backgrounds/${bg.filename}`);
+
+                for(let ctx of ctxs) {
+                    for(let i = 0;i < Math.ceil(tile_width / bg.width);i++) {
+                        for(let j = 0;j < Math.ceil(tile_height / bg.height);j++) {
+                            let x = (i*bg.width)*icon_size
+                            let y = (j*bg.height)*icon_size
+                            ctx.drawImage(bg_img, x, y);
+                        }
+                    }
+                }
+
+                // draw layers
+                const layers = farm_config.layers
+                let layer_index = 0
+
+                for(const layer of layers) {
+                    let icon = getIcon(icon_config, layer.icon)
+                    let img = await loadImage(`./icons/${icon.filename}`);
+                    layer_index++;
+
+                    for(let i = 0;i < component_order.length;i++) {
+                        let offset = component_offset[i]
+                        let component = getComponentFromLayer(layer, component_order[i])
+
+                        for(const position of component.positions) {
+                            let x = (offsets[3] + offset + position[0])*icon_size
+                            let y = (offsets[0] + position[1])*icon_size
+                            if (position.length == 2) {
+                                ctxs[0].drawImage(img, x, y);
+                                ctxs[layer_index].drawImage(img, x, y);
+                            } else {
+                                drawRotatedImage(ctxs[0], img, x, y, position[2]);
+                                drawRotatedImage(ctxs[layer_index], img, x, y, position[2]);
+                            }
+                        }
+                    }
+                }
+
+            })
+            .catch(err => console.error("Failed to load JSON files", err));
+            
+        }
+
+        function drawRotatedImage(ctx, img, x, y, rotation) {
+            ctx.save();
+
+            const centerX = x + img.width / 2;
+            const centerY = y + img.height / 2;
+            ctx.translate(centerX, centerY);
+
+            let angle = 0;
+            switch(rotation) {
+                case 1: // 90 degrees
+                    angle = Math.PI / 2;
+                    break;
+                case 2: // 180 degrees
+                    angle = Math.PI;
+                    break;
+                case 3: // 270 degrees
+                    angle = 3 * Math.PI / 2;
+                    break;
+            }
+            ctx.rotate(angle);
+
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+            ctx.restore();
+        }
+
+        function loadImage(path) {
+            return new Promise((resolve, reject) => {
+                let img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = path;
+            });
+        }
+
+        function getIcon(icon_config, icon_name) {
+            for(let icon of icon_config.icons) {
+                if (icon.name == icon_name) {
+                    return icon
+                }
+            }
+        }
+
+        function getBackground(bg_config, bg_name) {
+            for(let bg of bg_config.backgrounds) {
+                if (bg.name == bg_name) {
+                    return bg
+                }
+            }
+        }
+
+        function getComponentFromLayer(layer, component_name) {
+            for(let component of layer.components) {
+                if (component.name == component_name) {
+                    return component
+                }
+            }
+        }
+    </script>
+</body>
+</html>

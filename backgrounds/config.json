@@ -1,0 +1,34 @@
+{
+    "backgrounds": [
+        {
+            "name": "default",
+            "filename": "default.png",
+            "width": 10,
+            "height": 10
+        },
+        {
+            "name": "blue_5x5",
+            "filename": "blue_5x5.png",
+            "width": 10,
+            "height": 10
+        },
+        {
+            "name": "blue_4x4",
+            "filename": "blue_4x4.png",
+            "width": 8,
+            "height": 8
+        },
+        {
+            "name": "blue_3x3",
+            "filename": "blue_3x3.png",
+            "width": 6,
+            "height": 6
+        },
+        {
+            "name": "blue_2x2",
+            "filename": "blue_2x2.png",
+            "width": 4,
+            "height": 4
+        }
+    ]
+}

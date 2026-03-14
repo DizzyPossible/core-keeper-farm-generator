@@ -1,0 +1,65 @@
+{
+    "icon_size": 16,
+    "icons": [
+        {
+            "name": "generator",
+            "filename": "generator.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "electrical_wire",
+            "filename": "electrical_wire.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "delay_circuit",
+            "filename": "delay_circuit.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "critter_catcher",
+            "filename": "critter_catcher.png",
+            "width": 32,
+            "height": 32
+        },
+        {
+            "name": "fishing_net",
+            "filename": "fishing_net.png",
+            "width": 48,
+            "height": 48
+        },
+        {
+            "name": "robot_arm_red",
+            "filename": "robot_arm_red.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "item_collector_purple",
+            "filename": "item_collector_purple.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "item_collector_orange",
+            "filename": "item_collector_orange.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "conveyor_belt",
+            "filename": "conveyor_belt.png",
+            "width": 16,
+            "height": 16
+        },
+        {
+            "name": "chest",
+            "filename": "chest.png",
+            "width": 16,
+            "height": 16
+        }
+    ]
+}

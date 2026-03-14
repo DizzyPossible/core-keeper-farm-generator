@@ -1,0 +1,242 @@
+{
+    "offsets": [
+        1, 1, 1, 1
+    ],
+    "scaling": {
+        "scale_x": {
+            "enabled": true,
+            "label": "Number of critter catchers",
+            "min": 4,
+            "max": 60,
+            "step": 4
+        },
+        "components": [
+            {
+                "name": "left_end",
+                "type": "base",
+                "width": 3,
+                "height": 5
+            },
+            {
+                "name": "middle",
+                "type": "scale_x",
+                "width": 6,
+                "height": 5
+            },
+            {
+                "name": "right_end",
+                "type": "base",
+                "width": 4,
+                "height": 5
+            }
+        ]
+    },
+    "layers": [
+        {
+            "icon": "critter_catcher",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [1, 0],
+                        [1, 2]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [1, 0],
+                        [1, 2],
+                        [4, 0],
+                        [4, 2]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [1, 0],
+                        [1, 2]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "generator",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [1, 3]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": []
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [2, 0]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "electrical_wire",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [1, 0],
+                        [1, 1]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [1, 0],
+                        [2, 3],
+                        [4, 0],
+                        [5, 3]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [2, 2],
+                        [2, 3]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "delay_circuit",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [2, 0, 3],
+                        [2, 3, 1]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [2, 0, 3],
+                        [1, 3, 1],
+                        [5, 0, 3],
+                        [4, 3, 1]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [1, 0, 3],
+                        [1, 3, 1]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "robot_arm_red",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [0, 0, 3],
+                        [2, 4, 2]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [0, 1, 3],
+                        [1, 4, 2],
+                        [3, 1, 3],
+                        [5, 4, 2]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [0, 1, 3],
+                        [1, 4, 2]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "item_collector_purple",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [0, 1, 3],
+                        [0, 3, 1]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [0, 0, 3],
+                        [3, 0, 3],
+                        [0, 3, 1],
+                        [3, 3, 1]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [0, 0, 3],
+                        [3, 0, 3],
+                        [0, 3, 1],
+                        [3, 2, 1]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "item_collector_orange",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [1, 4, 2]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [2, 4, 1],
+                        [4, 4, 2]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [2, 4, 1]
+                    ]
+                }
+            ]
+        },
+        {
+            "icon": "chest",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": []
+                },
+                {
+                    "name": "middle",
+                    "positions": []
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [3, 4]
+                    ]
+                }
+            ]
+        }
+    ]
+}

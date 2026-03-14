@@ -1,0 +1,64 @@
+{
+    "offsets": [
+        1, 1, 1, 1
+    ],
+    "scaling": {
+        "scale_x": {
+            "enabled": false,
+            "label": "Number of XXX",
+            "min": 4,
+            "max": 100,
+            "step": 4
+        },
+        "components": [
+            {
+                "name": "left_end",
+                "type": "base",
+                "width": 3,
+                "height": 5
+            },
+            {
+                "name": "middle",
+                "type": "scale_x",
+                "width": 6,
+                "height": 5
+            },
+            {
+                "name": "right_end",
+                "type": "base",
+                "width": 4,
+                "height": 5
+            }
+        ]
+    },
+    "layers": [
+        {
+            "icon": "critter_catcher",
+            "components": [
+                {
+                    "name": "left_end",
+                    "positions": [
+                        [1, 0],
+                        [1, 2]
+                    ]
+                },
+                {
+                    "name": "middle",
+                    "positions": [
+                        [1, 0],
+                        [1, 2],
+                        [4, 0],
+                        [4, 2]
+                    ]
+                },
+                {
+                    "name": "right_end",
+                    "positions": [
+                        [1, 0],
+                        [1, 2]
+                    ]
+                }
+            ]
+        }
+    ]
+}
