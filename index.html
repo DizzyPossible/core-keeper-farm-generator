@@ -4,7 +4,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="farm-container">
+
+<div class="top-row">
+
+    <div class="farm-selection">
         <h2>Farm Layout Generator</h2>
         
         <!-- Farm selection -->
@@ -54,9 +57,15 @@
         
     </div>
 
+    <div class="info-panel">
+        <h3 id="info_farm_name">Farm name</h3>
+        <p id="info_farm_description">Farm description</p>
+        <p id="info_farm_output_rate">Output rate: not loaded</p>
+    </div>
+</div>
 
-    <!-- Output -->
-    <div id="output_layers"></div>
+<!-- Output -->
+<div id="output_layers"></div>
 
     <script>
         image_size_slider_changed()
@@ -66,6 +75,20 @@
             const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
             const scale_x_slider = document.getElementById("scale_x_slider");
             scale_x_slider_label_value.textContent = scale_x_slider.value;
+            
+            const farm_selection = document.getElementById("farm_selector");
+            const farm_option = farm_selection.selectedOptions[0];
+            const farm_group = farm_option.parentElement.label;
+            const farm_name = farm_option.value;
+            const config_files = [`./farm_layouts/${farm_group}/${farm_name}/config.json`]
+            Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
+            
+                const farm_config = jsonArray[0]
+                document.getElementById("info_farm_output_rate").textContent = farm_config.info.output_rate.text + farm_config.info.output_rate.scaling*scale_x_slider.value;
+            
+            })
+            .catch(err => console.error("Failed to load JSON files", err));
+
             //generate_farm()
         }
 
@@ -112,6 +135,11 @@
                 //update explanation link button
                 const explanation_link = document.getElementById("explanation_link");
                 explanation_link.href = farm_config.explanation_link;
+
+                //Update farm information
+                document.getElementById("info_farm_name").textContent = farm_config.info.title;
+                document.getElementById("info_farm_description").textContent = farm_config.info.description;
+                document.getElementById("info_farm_output_rate").textContent = farm_config.info.output_rate.text + farm_config.info.output_rate.scaling*scale_x_slider.value;
 
             })
             .catch(err => console.error("Failed to load JSON files", err));
