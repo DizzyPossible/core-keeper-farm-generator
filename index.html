@@ -47,7 +47,7 @@
             <span id="image_size_slider_label_text">Size of output images</span>: 
             <span id="image_size_slider_label_value">3</span>
         </label>
-        <input type="range" id="image_size_slider" min="1" max="10" value="3" oninput="image_size_slider_changed()">
+        <input type="range" id="image_size_slider" min="1" max="5" value="3" oninput="image_size_slider_changed()">
 
         <!-- Update button -->
         <button onclick="generate_farm()">Update</button>
@@ -84,7 +84,9 @@
 </div>
 
 <!-- Output -->
-<div id="output_layers"></div>
+<div class="output-wrapper">
+    <div id="output_layers"></div>
+</div>
 
     <script>
         image_size_slider_changed()
