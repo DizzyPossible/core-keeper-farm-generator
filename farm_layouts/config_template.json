@@ -2,7 +2,16 @@
     "explanation_link": "LINK",
     "info": {
         "title": "Info panel title",
-        "description": "Info panel description"
+        "description": "Info panel description",
+        "output_rate": {
+            "text": "XXX per hour: ",
+            "scaling": 1
+        },
+        "rating": {
+            "space": 1,
+            "output_rate": 1,
+            "resource_efficiency": 1
+        }
     },
     "offsets": [
         1, 1, 1, 1

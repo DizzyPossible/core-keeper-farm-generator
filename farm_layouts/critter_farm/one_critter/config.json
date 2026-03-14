@@ -2,10 +2,15 @@
     "explanation_link": "https://www.reddit.com/r/CoreKeeperGame/comments/1rnka3j/actually_best_critter_farm/",
     "info": {
         "title": "One type critter farm",
-        "description": "A space efficient critter farm that scales well.",
+        "description": "A space efficient critter farm that scales well. It can only collect one type of critter.",
         "output_rate": {
             "text": "Critters per hour: ",
             "scaling": 23.5
+        },
+        "rating": {
+            "space": 4,
+            "output_rate": 4,
+            "resource_efficiency": 2
         }
     },
     "offsets": [

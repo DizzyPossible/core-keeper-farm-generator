@@ -5,9 +5,9 @@
 </head>
 <body>
 
-<div class="top-row">
+<div class="top_row">
 
-    <div class="farm-selection">
+    <div class="farm_selection">
         <h2>Farm Layout Generator</h2>
         
         <!-- Farm selection -->
@@ -57,10 +57,29 @@
         
     </div>
 
-    <div class="info-panel">
+    <div class="info_panel">
         <h3 id="info_farm_name">Farm name</h3>
         <p id="info_farm_description">Farm description</p>
         <p id="info_farm_output_rate">Output rate: not loaded</p>
+
+        <table id="info_rating_table">
+            <tr>
+                <th>Category</th>
+                <th>Rating</th>
+            </tr>
+            <tr>
+                <td>Space efficiency</td>
+                <td id="info_table_space"></td>
+            </tr>
+            <tr>
+                <td>output rate</td>
+                <td id="info_table_output_rate"></td>
+            </tr>
+            <tr>
+                <td>resource cost</td>
+                <td id="info_table_resource_usage"></td>
+            </tr>
+        </table>
     </div>
 </div>
 
@@ -70,6 +89,12 @@
     <script>
         image_size_slider_changed()
         farm_selection_changed()
+
+        function updateRatings(rating) {
+            document.getElementById("info_table_space").textContent = "★".repeat(rating.space) + "☆".repeat(4 - rating.space);
+            document.getElementById("info_table_output_rate").textContent = "★".repeat(rating.output_rate) + "☆".repeat(4 - rating.output_rate);
+            document.getElementById("info_table_resource_usage").textContent = "★".repeat(rating.resource_efficiency) + "☆".repeat(4 - rating.resource_efficiency);
+        }
 
         function scale_x_slider_changed() {
             const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
@@ -141,6 +166,7 @@
                 document.getElementById("info_farm_description").textContent = farm_config.info.description;
                 document.getElementById("info_farm_output_rate").textContent = farm_config.info.output_rate.text + farm_config.info.output_rate.scaling*scale_x_slider.value;
 
+                updateRatings(farm_config.info.rating)
             })
             .catch(err => console.error("Failed to load JSON files", err));
 
