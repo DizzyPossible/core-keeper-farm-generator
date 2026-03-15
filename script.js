@@ -1,0 +1,375 @@
+image_size_slider_changed()
+farm_selection_changed()
+toggleAdancedSettings(document.getElementById("toggle_adanced_settings_checkbox"))
+
+function toggleAdancedSettings(checkbox) {
+    const advanced_settings_container = document.getElementById("advanced_settings_container");
+    advanced_settings_container.style.display = checkbox.checked ? "block" : "none";
+}
+
+function updateInfoPanel() {
+    const farm_selection = document.getElementById("farm_selector");
+    const farm_option = farm_selection.selectedOptions[0];
+    const farm_group = farm_option.parentElement.id;
+    const farm_name = farm_option.value;
+    const config_files = [`./farm_layouts/${farm_group}/${farm_name}/config.json`]
+    Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
+    
+        const farm_config = jsonArray[0]
+        
+        document.getElementById("info_farm_name").textContent = farm_config.info.title;
+        document.getElementById("info_farm_description").textContent = farm_config.info.description;
+
+        // table
+        let { component_order, component_offset, tile_width, tile_height } = getFarmComponents(farm_config)
+        document.getElementById("info_table_width").textContent = tile_width + " tiles"
+        document.getElementById("info_table_height").textContent = tile_height + " tiles"
+        document.getElementById("info_table_output_rate_label").textContent = farm_config.info.output_rate.text;
+        document.getElementById("info_table_output_rate").textContent = farm_config.info.output_rate.scaling*scale_x_slider.value;
+
+        const rating = farm_config.info.rating
+        document.getElementById("info_table_space_rating").textContent = "★".repeat(rating.space) + "☆".repeat(4 - rating.space);
+        document.getElementById("info_table_output_rating").textContent = "★".repeat(rating.output_rate) + "☆".repeat(4 - rating.output_rate);
+        document.getElementById("info_table_resource_rating").textContent = "★".repeat(rating.resource_efficiency) + "☆".repeat(4 - rating.resource_efficiency);
+
+        document.getElementById("explanation_link").href = farm_config.explanation_link;
+
+        document.getElementById("info_creator").textContent = "Design by: " + farm_config.info.creator;
+
+    })
+    .catch(err => console.error("Failed to load JSON files", err));
+}
+
+function scale_x_slider_changed() {
+    const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
+    const scale_x_slider = document.getElementById("scale_x_slider");
+    scale_x_slider_label_value.textContent = scale_x_slider.value;
+    
+    updateInfoPanel()
+
+    //generate_farm()
+}
+
+function image_size_slider_changed() {
+    const image_size_slider_label_value = document.getElementById("image_size_slider_label_value");
+    const image_size_slider = document.getElementById("image_size_slider");
+    image_size_slider_label_value.textContent = image_size_slider.value;
+    //generate_farm()
+}
+
+function farm_selection_changed() {
+    const farm_selection = document.getElementById("farm_selector");
+    const farm_option = farm_selection.selectedOptions[0];
+
+    const farm_group = farm_option.parentElement.id;
+    const farm_name = farm_option.value;
+    const config_files = [`./farm_layouts/${farm_group}/${farm_name}/config.json`]
+    
+    Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
+        
+        const farm_config = jsonArray[0]
+        
+        const scale_x_slider_label = document.getElementById("scale_x_slider_label");
+        const scale_x_slider_label_text = document.getElementById("scale_x_slider_label_text");
+        const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
+        const scale_x_slider = document.getElementById("scale_x_slider");
+
+        let scale_x_config = farm_config.scaling.scale_x
+        if (scale_x_config.enabled) {
+            scale_x_slider_label.style = ""
+            scale_x_slider_label_text.textContent  = scale_x_config.label
+            scale_x_slider_label_value.textContent  = scale_x_config.min
+            scale_x_slider.style = ""
+            scale_x_slider.min = scale_x_config.min
+            scale_x_slider.max = scale_x_config.max
+            scale_x_slider.step = scale_x_config.step
+            scale_x_slider.value = scale_x_config.min
+
+        } else {
+            scale_x_slider_label.style = "display:none"
+            scale_x_slider.style = "display:none"
+        }
+
+        updateInfoPanel()
+
+    })
+    .catch(err => console.error("Failed to load JSON files", err));
+
+    generate_farm()
+}
+
+function getFarmComponents(farm_config) {
+    const farm_sclaling_x = farm_config.scaling.scale_x
+    const farm_components = farm_config.scaling.components
+
+    let scale_x = 0
+    if (farm_sclaling_x.enabled) {
+        const scale_x_slider_value = parseFloat(document.getElementById('scale_x_slider').value);
+        scale_x = (scale_x_slider_value - farm_sclaling_x.min) / farm_sclaling_x.step
+    }
+
+    let component_order = []
+    let component_offset = []
+    let current_offset = 0
+    for(let component of farm_components) {
+        if (component.type == "base") {
+            component_order.push(component.name)
+            component_offset.push(current_offset)
+            current_offset += component.width
+        } else if (component.type == "scale_x") {
+            for(let i = 0;i < scale_x;i++) {
+                component_order.push(component.name)
+                component_offset.push(current_offset)
+                current_offset += component.width
+            }
+        }
+    }
+    return { component_order, component_offset, tile_width: current_offset, tile_height: farm_components[0].height }
+}
+
+function generate_farm() {
+    const farm_selection = document.getElementById("farm_selector");
+    const img = document.getElementById("preview");
+    
+    const background_selection = document.getElementById("background_selection");
+    const selected_background = background_selection.selectedOptions[0].value;
+
+    const farm_option = farm_selection.selectedOptions[0];
+    const farm_group = farm_option.parentElement.id;
+    const farm_name = farm_option.value;
+
+    const config_files = ["./icons/config.json", "./backgrounds/config.json", `./farm_layouts/${farm_group}/${farm_name}/config.json`]
+
+    Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
+        
+        const icon_config = jsonArray[0]
+        const bg_config = jsonArray[1]
+        const farm_config = jsonArray[2]
+
+        const icon_size = icon_config.icon_size
+
+        // get components
+        let { component_order, component_offset, tile_width, tile_height } = getFarmComponents(farm_config)
+
+        // calculate canvas size and scale
+        const offsets = farm_config.offsets
+        const canvas_tile_width = (tile_width + offsets[1] + offsets[3])
+        const canvas_tile_height = (tile_height + offsets[1] + offsets[3])
+
+        const image_size_multiplier = parseFloat(document.getElementById('image_size_slider').value);
+        canvas_width = canvas_tile_width * icon_size * image_size_multiplier
+        canvas_height = canvas_tile_height * icon_size * image_size_multiplier
+
+        // create 2D array of farm
+        farm_layout = []
+        for(let i = 0;i < tile_width;i++) {
+            farm_layout.push([])
+            for(let j = 0;j < tile_height;j++) {
+                farm_layout[i].push([])
+            }
+        }
+
+        let icons = {}
+
+        const layers = farm_config.layers
+        for(const layer of layers) {
+            let icon = layer.icon
+            icons[icon] = await loadImage(`./icons/${getIcon(icon_config, layer.icon).filename}`);
+
+            for(let i = 0;i < component_order.length;i++) {
+                let component = getComponentFromLayer(layer, component_order[i])
+                let offset = component_offset[i];
+                for(const position of component.positions) {
+                    let x = offset + position[0];
+                    let y = position[1]
+                    if (position.length == 2) {
+                        farm_layout[x][y].push([icon])
+                    } else {
+                        farm_layout[x][y].push([icon, position[2]])
+                    }
+                }
+            }
+        }
+
+        // create output
+        let bg = getBackground(bg_config, selected_background);
+        let bg_img = await loadImage(`./backgrounds/${bg.filename}`);
+
+        const guide_layers = farm_config.guide_layers
+        let guide_titles = []
+        let guide_descriptions = []
+        let output_canvases = []
+        let canvases = []
+        let output_ctxs = []
+        let ctxs = []
+        for(let i = 0;i < guide_layers.length;i++) {
+            let layer = guide_layers[i];
+
+            const guide_title = document.createElement("label");
+            guide_title.innerHTML = layer.title;
+            guide_titles.push(guide_title)
+            
+            const guide_description = document.createElement("p");
+            guide_description.innerHTML = layer.description;
+            guide_descriptions.push(guide_description)
+
+            //create canvases
+            let { canvas, ctx} = createCanvas(`output_canvas_${i}`, canvas_width, canvas_height, image_size_multiplier)
+            output_canvases.push(canvas)
+            output_ctxs.push(ctx);
+            
+            ({ canvas, ctx} = createCanvas(`canvas_${i}`, canvas_width, canvas_height, image_size_multiplier))
+            canvases.push(canvas)
+            ctxs.push(ctx);
+
+            // draw background
+            for(let j = 0;j < Math.ceil(canvas_tile_width / bg.width);j++) {
+                for(let k = 0;k < Math.ceil(canvas_tile_height / bg.height);k++) {
+                    let x = (j*bg.width)*icon_size
+                    let y = (k*bg.height)*icon_size
+                    output_ctxs[i].drawImage(bg_img, x, y);
+                }
+            }
+
+            // draw previous layers
+            output_ctxs[i].save();
+            output_ctxs[i].scale(1/image_size_multiplier, 1/image_size_multiplier);
+
+            output_ctxs[i].globalAlpha = 0.25;
+            for(let j = 0;j < i;j++) {
+                output_ctxs[i].drawImage(canvases[j], 0, 0)
+            }
+            output_ctxs[i].restore()
+
+            // draw icons
+            for(let x = 0;x < farm_layout.length;x++) {
+                for(let y = 0;y < farm_layout[0].length;y++) {
+                    for(let icon of farm_layout[x][y]) {
+                        if (layer.icons.includes(icon[0])) {
+                            let x_pix = (offsets[3] + x)*icon_size
+                            let y_pix = (offsets[0] + y)*icon_size
+                            let image = icons[icon[0]]
+
+                            if (icon.length == 1) {
+                                ctxs[i].drawImage(image, x_pix, y_pix);
+                            } else {
+                                drawRotatedImage(ctxs[i], image, x_pix, y_pix, icon[1]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // draw icons to output
+            output_ctxs[i].save();
+            output_ctxs[i].scale(1/image_size_multiplier, 1/image_size_multiplier);
+            output_ctxs[i].drawImage(canvases[i], 0, 0)
+            output_ctxs[i].restore()
+
+        }
+
+        // create full farm picture
+        let { canvas, ctx} = createCanvas("canvas_main", canvas_width, canvas_height, 1)
+        if (canvases.length > 0) ctx.drawImage(output_canvases[0], 0, 0)
+
+        for(let i = 0;i < canvases.length;i++) {
+            if (canvases.length != 0) ctx.drawImage(canvases[i], 0, 0)
+        }
+
+        // display output
+        const output_div = document.getElementById("output_layers");
+        output_div.innerHTML = "";
+
+        const output_header = document.createElement("h3");
+        output_header.textContent = "Layout overview (Step by step guide below)";
+        output_div.appendChild(output_header);
+
+        output_div.appendChild(canvas);
+
+        const guide_header = document.createElement("h3");
+        guide_header.textContent = "Step by step guide";
+        output_div.appendChild(guide_header);
+
+        for(let i = 0;i < guide_layers.length;i++) {
+            output_div.appendChild(guide_titles[i]);
+            output_div.appendChild(guide_descriptions[i]);
+            output_div.appendChild(output_canvases[i])
+        }
+
+    })
+    .catch(err => console.error("Failed to load JSON files", err));
+    
+}
+
+function createCanvas(name, width, height, image_size_multiplier) {
+    let canvas = document.createElement("canvas");
+    canvas.id = name;
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.display = "block";
+    canvas.style.marginBottom = "10px";
+
+    let ctx = canvas.getContext("2d");
+    ctx.scale(image_size_multiplier, image_size_multiplier);
+    ctx.imageSmoothingEnabled = false;
+    return {canvas, ctx}
+}
+
+function drawRotatedImage(ctx, img, x, y, rotation) {
+    ctx.save();
+
+    const centerX = x + img.width / 2;
+    const centerY = y + img.height / 2;
+    ctx.translate(centerX, centerY);
+
+    let angle = 0;
+    switch(rotation) {
+        case 1: // 90 degrees
+            angle = Math.PI / 2;
+            break;
+        case 2: // 180 degrees
+            angle = Math.PI;
+            break;
+        case 3: // 270 degrees
+            angle = 3 * Math.PI / 2;
+            break;
+    }
+    ctx.rotate(angle);
+
+    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+    ctx.restore();
+}
+
+function loadImage(path) {
+    return new Promise((resolve, reject) => {
+        let img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = path;
+    });
+}
+
+function getIcon(icon_config, icon_name) {
+    for(let icon of icon_config.icons) {
+        if (icon.name == icon_name) {
+            return icon
+        }
+    }
+}
+
+function getBackground(bg_config, bg_name) {
+    for(let bg of bg_config.backgrounds) {
+        if (bg.name == bg_name) {
+            return bg
+        }
+    }
+}
+
+function getComponentFromLayer(layer, component_name) {
+    for(let component of layer.components) {
+        if (component.name == component_name) {
+            return component
+        }
+    }
+}
