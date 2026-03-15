@@ -2,7 +2,7 @@
     "explanation_link": "",
     "info": {
         "title": "Resource efficient critter farm",
-        "description": "A simple critter farm that focuses on resource efficiency. Crops can be provided somwhere in the cycle.",
+        "description": "A simple critter farm that focuses on resource efficiency. Crops can be provided anywhere in the cycle.",
         "creator": "Dizzy",
         "output_rate": {
             "text": "Critters per hour: ",
@@ -15,7 +15,7 @@
         }
     },
     "offsets": [
-        1, 1, 1, 1
+        0, 0, 0, 0
     ],
     "scaling": {
         "scale_x": {
