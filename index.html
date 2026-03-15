@@ -52,34 +52,50 @@
         <!-- Update button -->
         <button onclick="generate_farm()">Update</button>
 
-        <!-- Explanation link -->
-        <a id="explanation_link" href="https://www.reddit.com/user/Dizzy_Possible1147" target="_blank" class="btn">Go to explanation of farm</a>
         
     </div>
 
     <div class="info_panel">
         <h3 id="info_farm_name">Farm name</h3>
         <p id="info_farm_description">Farm description</p>
-        <p id="info_farm_output_rate">Output rate: not loaded</p>
 
         <table id="info_rating_table">
+            <!-- 
             <tr>
                 <th>Category</th>
                 <th>Rating</th>
             </tr>
+            -->
             <tr>
+                <td>width</td>
+                <td id="info_table_width"></td>
+            </tr>
+            <tr>
+                <td>height</td>
+                <td id="info_table_height"></td>
+            </tr>
+            <tr>
+                <td id="info_table_output_rate_label">XXX per hour</td>
+                <td id="info_table_output_rate"></td>
+            </tr>
+            <tr id="rating_separator">
                 <td>space efficiency</td>
-                <td id="info_table_space"></td>
+                <td id="info_table_space_rating"></td>
             </tr>
             <tr>
                 <td>output rate</td>
-                <td id="info_table_output_rate"></td>
+                <td id="info_table_output_rating"></td>
             </tr>
             <tr>
                 <td>resource cost</td>
-                <td id="info_table_resource_usage"></td>
+                <td id="info_table_resource_rating"></td>
             </tr>
         </table>
+
+        <!-- Explanation link -->
+        <a id="explanation_link" href="https://www.reddit.com/user/Dizzy_Possible1147" target="_blank" class="btn">Go to explanation of farm</a>
+
+        <p id="info_creator">Designed by: could not load</p>
     </div>
 </div>
 
@@ -92,17 +108,7 @@
         image_size_slider_changed()
         farm_selection_changed()
 
-        function updateRatings(rating) {
-            document.getElementById("info_table_space").textContent = "★".repeat(rating.space) + "☆".repeat(4 - rating.space);
-            document.getElementById("info_table_output_rate").textContent = "★".repeat(rating.output_rate) + "☆".repeat(4 - rating.output_rate);
-            document.getElementById("info_table_resource_usage").textContent = "★".repeat(rating.resource_efficiency) + "☆".repeat(4 - rating.resource_efficiency);
-        }
-
-        function scale_x_slider_changed() {
-            const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
-            const scale_x_slider = document.getElementById("scale_x_slider");
-            scale_x_slider_label_value.textContent = scale_x_slider.value;
-            
+        function updateInfoPanel() {
             const farm_selection = document.getElementById("farm_selector");
             const farm_option = farm_selection.selectedOptions[0];
             const farm_group = farm_option.parentElement.id;
@@ -111,10 +117,36 @@
             Promise.all(config_files.map(f => fetch(f).then(r => r.json()))).then(async (jsonArray) => {
             
                 const farm_config = jsonArray[0]
-                document.getElementById("info_farm_output_rate").textContent = farm_config.info.output_rate.text + farm_config.info.output_rate.scaling*scale_x_slider.value;
-            
+                
+                document.getElementById("info_farm_name").textContent = farm_config.info.title;
+                document.getElementById("info_farm_description").textContent = farm_config.info.description;
+
+                // table
+                let { component_order, component_offset, tile_width, tile_height } = getFarmComponents(farm_config)
+                document.getElementById("info_table_width").textContent = tile_width + " tiles"
+                document.getElementById("info_table_height").textContent = tile_height + " tiles"
+                document.getElementById("info_table_output_rate_label").textContent = farm_config.info.output_rate.text;
+                document.getElementById("info_table_output_rate").textContent = farm_config.info.output_rate.scaling*scale_x_slider.value;
+
+                const rating = farm_config.info.rating
+                document.getElementById("info_table_space_rating").textContent = "★".repeat(rating.space) + "☆".repeat(4 - rating.space);
+                document.getElementById("info_table_output_rating").textContent = "★".repeat(rating.output_rate) + "☆".repeat(4 - rating.output_rate);
+                document.getElementById("info_table_resource_rating").textContent = "★".repeat(rating.resource_efficiency) + "☆".repeat(4 - rating.resource_efficiency);
+
+                document.getElementById("explanation_link").href = farm_config.explanation_link;
+
+                document.getElementById("info_creator").textContent = "Designed by: " + farm_config.info.creator;
+
             })
             .catch(err => console.error("Failed to load JSON files", err));
+        }
+
+        function scale_x_slider_changed() {
+            const scale_x_slider_label_value = document.getElementById("scale_x_slider_label_value");
+            const scale_x_slider = document.getElementById("scale_x_slider");
+            scale_x_slider_label_value.textContent = scale_x_slider.value;
+            
+            updateInfoPanel()
 
             //generate_farm()
         }
@@ -159,20 +191,41 @@
                     scale_x_slider.style = "display:none"
                 }
 
-                //update explanation link button
-                const explanation_link = document.getElementById("explanation_link");
-                explanation_link.href = farm_config.explanation_link;
+                updateInfoPanel()
 
-                //Update farm information
-                document.getElementById("info_farm_name").textContent = farm_config.info.title;
-                document.getElementById("info_farm_description").textContent = farm_config.info.description;
-                document.getElementById("info_farm_output_rate").textContent = farm_config.info.output_rate.text + farm_config.info.output_rate.scaling*scale_x_slider.value;
-
-                updateRatings(farm_config.info.rating)
             })
             .catch(err => console.error("Failed to load JSON files", err));
 
             generate_farm()
+        }
+
+        function getFarmComponents(farm_config) {
+            const farm_sclaling_x = farm_config.scaling.scale_x
+            const farm_components = farm_config.scaling.components
+
+            let scale_x = 0
+            if (farm_sclaling_x.enabled) {
+                const scale_x_slider_value = parseFloat(document.getElementById('scale_x_slider').value);
+                scale_x = (scale_x_slider_value - farm_sclaling_x.min) / farm_sclaling_x.step
+            }
+
+            let component_order = []
+            let component_offset = []
+            let current_offset = 0
+            for(let component of farm_components) {
+                if (component.type == "base") {
+                    component_order.push(component.name)
+                    component_offset.push(current_offset)
+                    current_offset += component.width
+                } else if (component.type == "scale_x") {
+                    for(let i = 0;i < scale_x;i++) {
+                        component_order.push(component.name)
+                        component_offset.push(current_offset)
+                        current_offset += component.width
+                    }
+                }
+            }
+            return { component_order, component_offset, tile_width: current_offset, tile_height: farm_components[0].height }
         }
 
         function generate_farm() {
@@ -196,41 +249,17 @@
 
                 const icon_size = icon_config.icon_size
 
-                // get order of components
-                const farm_sclaling_x = farm_config.scaling.scale_x
-                const farm_components = farm_config.scaling.components
-
-                let scale_x = 0
-                if (farm_sclaling_x.enabled) {
-                    const scale_x_slider_value = parseFloat(document.getElementById('scale_x_slider').value);
-                    scale_x = (scale_x_slider_value - farm_sclaling_x.min) / farm_sclaling_x.step
-                }
-
-                let component_order = []
-                let component_offset = []
-                let current_offset = 0
-                for(let component of farm_components) {
-                    if (component.type == "base") {
-                        component_order.push(component.name)
-                        component_offset.push(current_offset)
-                        current_offset += component.width
-                    } else if (component.type == "scale_x") {
-                        for(let i = 0;i < scale_x;i++) {
-                            component_order.push(component.name)
-                            component_offset.push(current_offset)
-                            current_offset += component.width
-                        }
-                    }
-                }
+                // get components
+                let { component_order, component_offset, tile_width, tile_height } = getFarmComponents(farm_config)
 
                 // calculate canvas size and scale
                 const offsets = farm_config.offsets
-                const tile_width = (current_offset + offsets[1] + offsets[3])
-                const tile_height = (farm_components[0].height + offsets[1] + offsets[3])
+                const canvas_tile_width = (tile_width + offsets[1] + offsets[3])
+                const canvas_tile_height = (tile_height + offsets[1] + offsets[3])
 
                 const image_size_multiplier = parseFloat(document.getElementById('image_size_slider').value);
-                canvas_width = tile_width * icon_size * image_size_multiplier
-                canvas_height = tile_height * icon_size * image_size_multiplier
+                canvas_width = canvas_tile_width * icon_size * image_size_multiplier
+                canvas_height = canvas_tile_height * icon_size * image_size_multiplier
 
                 // create layer canvases
                 const output_div = document.getElementById("output_layers");
@@ -240,8 +269,8 @@
                 for (let n = 0; n < farm_config.layers.length+1; n++) {
                     const canvas = document.createElement("canvas");
                     canvas.id = `canvas_${n}`;
-                    canvas.width = tile_width * icon_size * image_size_multiplier;
-                    canvas.height = tile_height * icon_size * image_size_multiplier;
+                    canvas.width = canvas_tile_width * icon_size * image_size_multiplier;
+                    canvas.height = canvas_tile_height * icon_size * image_size_multiplier;
                     canvas.style.display = "block";
                     canvas.style.marginBottom = "10px";
 
@@ -263,8 +292,8 @@
                 let bg_img = await loadImage(`./backgrounds/${bg.filename}`);
 
                 for(let ctx of ctxs) {
-                    for(let i = 0;i < Math.ceil(tile_width / bg.width);i++) {
-                        for(let j = 0;j < Math.ceil(tile_height / bg.height);j++) {
+                    for(let i = 0;i < Math.ceil(canvas_tile_width / bg.width);i++) {
+                        for(let j = 0;j < Math.ceil(canvas_tile_height / bg.height);j++) {
                             let x = (i*bg.width)*icon_size
                             let y = (j*bg.height)*icon_size
                             ctx.drawImage(bg_img, x, y);

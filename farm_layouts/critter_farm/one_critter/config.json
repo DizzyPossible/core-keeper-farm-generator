@@ -3,6 +3,7 @@
     "info": {
         "title": "Critter farm (one critter type)",
         "description": "A space efficient critter farm that scales well. It can only collect one type of critter.",
+        "creator": "Dizzy",
         "output_rate": {
             "text": "Critters per hour: ",
             "scaling": 23.5

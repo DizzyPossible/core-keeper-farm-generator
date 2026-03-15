@@ -3,6 +3,7 @@
     "info": {
         "title": "Info panel title",
         "description": "Info panel description",
+        "creator": "XXX",
         "output_rate": {
             "text": "XXX per hour: ",
             "scaling": 1
