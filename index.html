@@ -28,26 +28,33 @@
         </label>
         <input type="range" id="scale_x_slider" min="0" max="0" step="2" value="0" style="display:none" oninput="scale_x_slider_changed()">
 
-        <!-- Background selection -->
-        <label for="background_selection">Select a background:</label>
-        <select name="background_selection" id="background_selection" onchange="generate_farm()">
-            <optgroup label="default">
-                <option value="default">default</option>
-            </optgroup>
-            <optgroup label="black-blue">
-                <option value="blue_2x2">blue_2x2</option>
-                <option value="blue_3x3">blue_3x3</option>
-                <option value="blue_4x4">blue_4x4</option>
-                <option value="blue_5x5">blue_5x5</option>
-            </optgroup>
-        </select>
-
-        <!-- Image size slider -->
-        <label id="image_size_slider_label" for="farm_size">
-            <span id="image_size_slider_label_text">Size of output images</span>: 
-            <span id="image_size_slider_label_value">3</span>
+        <label>
+            <input type="checkbox" id="toggle_adanced_settings_checkbox" onchange="toggleAdancedSettings(this)">
+            show advanced settings
         </label>
-        <input type="range" id="image_size_slider" min="1" max="5" value="3" oninput="image_size_slider_changed()">
+
+        <div id="advanced_settings_container">
+            <!-- Background selection -->
+            <label for="background_selection">Select a background:</label>
+            <select name="background_selection" id="background_selection" onchange="generate_farm()">
+                <optgroup label="default">
+                    <option value="default">default</option>
+                </optgroup>
+                <optgroup label="black-blue">
+                    <option value="blue_2x2">blue_2x2</option>
+                    <option value="blue_3x3">blue_3x3</option>
+                    <option value="blue_4x4">blue_4x4</option>
+                    <option value="blue_5x5">blue_5x5</option>
+                </optgroup>
+            </select>
+
+            <!-- Image size slider -->
+            <label id="image_size_slider_label" for="farm_size">
+                <span id="image_size_slider_label_text">Size of output images</span>: 
+                <span id="image_size_slider_label_value">3</span>
+            </label>
+            <input type="range" id="image_size_slider" min="1" max="5" value="3" oninput="image_size_slider_changed()">
+        </div>
 
         <!-- Update button -->
         <button onclick="generate_farm()">Update</button>
@@ -107,6 +114,12 @@
     <script>
         image_size_slider_changed()
         farm_selection_changed()
+        toggleAdancedSettings(document.getElementById("toggle_adanced_settings_checkbox"))
+
+        function toggleAdancedSettings(checkbox) {
+            const advanced_settings_container = document.getElementById("advanced_settings_container");
+            advanced_settings_container.style.display = checkbox.checked ? "block" : "none";
+        }
 
         function updateInfoPanel() {
             const farm_selection = document.getElementById("farm_selector");

@@ -196,3 +196,8 @@ p {
     word-break: break-all;        /* break anywhere, even inside a word */
     overflow-wrap: anywhere;      /* modern equivalent */
 }
+
+#toggle_adanced_settings_checkbox {
+    margin-bottom: 25px;
+    display: inline-block;
+}
