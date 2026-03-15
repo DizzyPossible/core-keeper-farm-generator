@@ -191,10 +191,6 @@ p {
     color: #555;
     margin-bottom: 6px;
     line-height: 1.5;
-    display: block;
-    white-space: normal;          /* allow wrapping */
-    word-break: break-all;        /* break anywhere, even inside a word */
-    overflow-wrap: anywhere;      /* modern equivalent */
 }
 
 #toggle_adanced_settings_checkbox {
