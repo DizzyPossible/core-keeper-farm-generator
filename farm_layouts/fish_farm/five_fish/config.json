@@ -46,6 +46,28 @@
             }
         ]
     },
+    "guide_layers": [
+        {
+            "title": "Step 1: Place item collectors and robot arms",
+            "description": "Set the filters a following:<br>red robot arms: do not set filters<br>purple item collectors: input critter type<br>orange item collectors: one output fish type (refer to explanation linked in info panel)",
+            "icons": ["robot_arm_red", "item_collector_purple", "item_collector_orange", "chest"]
+        },
+        {
+            "title": "Step 2: Place wiring",
+            "description": "After placing the wiring, reload the world.<br>Then, drop some critters into the pickup area of a purple item collector.<br>The critters should teleport in a circle, using every purple item collector.",
+            "icons": ["generator", "electrical_wire", "delay_circuit"]
+        },
+        {
+            "title": "Step 3: Place conveyor belts",
+            "description": "",
+            "icons": ["conveyor_belt"]
+        },
+        {
+            "title": "Step 3: Place fishing nets",
+            "description": "",
+            "icons": ["fishing_net"]
+        }
+    ],
     "layers": [
         {
             "icon": "fishing_net",

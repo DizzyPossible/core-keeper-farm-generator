@@ -46,6 +46,23 @@
             }
         ]
     },
+    "guide_layers": [
+        {
+            "title": "Step 1: Place item collectors and robot arms",
+            "description": "Set the filters a following:<br>red robot arms: output critter<br>purple item collectors: input crop type<br>orange item collectors: output critter",
+            "icons": ["robot_arm_red", "item_collector_purple", "item_collector_orange", "chest"]
+        },
+        {
+            "title": "Step 2: Place wiring",
+            "description": "After placing the wiring, reload the world.<br>Then, drop some crops into the pickup area of a purple item collector.<br>The crops should teleport in a circle, using every purple item collector.",
+            "icons": ["generator", "electrical_wire", "delay_circuit"]
+        },
+        {
+            "title": "Step 3: Place critter catchers",
+            "description": "",
+            "icons": ["critter_catcher"]
+        }
+    ],
     "layers": [
         {
             "icon": "critter_catcher",

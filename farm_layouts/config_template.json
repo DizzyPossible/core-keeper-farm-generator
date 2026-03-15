@@ -46,6 +46,13 @@
             }
         ]
     },
+    "guide_layers": [
+        {
+            "title": "Step 1: Place something",
+            "description": "Description<br>With line break",
+            "icons": ["critter_catcher"]
+        }
+    ],
     "layers": [
         {
             "icon": "critter_catcher",

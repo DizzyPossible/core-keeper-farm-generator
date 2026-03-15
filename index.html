@@ -95,12 +95,12 @@
         <!-- Explanation link -->
         <a id="explanation_link" href="https://www.reddit.com/user/Dizzy_Possible1147" target="_blank" class="btn">Go to explanation of farm</a>
 
-        <p id="info_creator">Designed by: could not load</p>
+        <p id="info_creator">Design by: could not load</p>
     </div>
 </div>
 
 <!-- Output -->
-<div class="output-wrapper">
+<div class="output_wrapper">
     <div id="output_layers"></div>
 </div>
 
@@ -135,7 +135,7 @@
 
                 document.getElementById("explanation_link").href = farm_config.explanation_link;
 
-                document.getElementById("info_creator").textContent = "Designed by: " + farm_config.info.creator;
+                document.getElementById("info_creator").textContent = "Design by: " + farm_config.info.creator;
 
             })
             .catch(err => console.error("Failed to load JSON files", err));
@@ -261,76 +261,159 @@
                 canvas_width = canvas_tile_width * icon_size * image_size_multiplier
                 canvas_height = canvas_tile_height * icon_size * image_size_multiplier
 
-                // create layer canvases
-                const output_div = document.getElementById("output_layers");
-                output_div.innerHTML = "";
-                let canvases = []
-                let ctxs = []
-                for (let n = 0; n < farm_config.layers.length+1; n++) {
-                    const canvas = document.createElement("canvas");
-                    canvas.id = `canvas_${n}`;
-                    canvas.width = canvas_tile_width * icon_size * image_size_multiplier;
-                    canvas.height = canvas_tile_height * icon_size * image_size_multiplier;
-                    canvas.style.display = "block";
-                    canvas.style.marginBottom = "10px";
-
-                    if (n != 0) {
-                        const label = document.createElement("label");
-                        label.textContent = `Layer ${n}: ${farm_config.layers[n-1].icon}s`;
-                        output_div.appendChild(label);
-                    }
-                    output_div.appendChild(canvas);
-                    canvases.push(canvas);
-                    let ctx = canvas.getContext("2d");
-                    ctx.scale(image_size_multiplier, image_size_multiplier);
-                    ctx.imageSmoothingEnabled = false; 
-                    ctxs.push(ctx);
-                }                
-
-                // draw background
-                let bg = getBackground(bg_config, selected_background);
-                let bg_img = await loadImage(`./backgrounds/${bg.filename}`);
-
-                for(let ctx of ctxs) {
-                    for(let i = 0;i < Math.ceil(canvas_tile_width / bg.width);i++) {
-                        for(let j = 0;j < Math.ceil(canvas_tile_height / bg.height);j++) {
-                            let x = (i*bg.width)*icon_size
-                            let y = (j*bg.height)*icon_size
-                            ctx.drawImage(bg_img, x, y);
-                        }
+                // create 2D array of farm
+                farm_layout = []
+                for(let i = 0;i < tile_width;i++) {
+                    farm_layout.push([])
+                    for(let j = 0;j < tile_height;j++) {
+                        farm_layout[i].push([])
                     }
                 }
 
-                // draw layers
-                const layers = farm_config.layers
-                let layer_index = 0
+                let icons = {}
 
+                const layers = farm_config.layers
                 for(const layer of layers) {
-                    let icon = getIcon(icon_config, layer.icon)
-                    let img = await loadImage(`./icons/${icon.filename}`);
-                    layer_index++;
+                    let icon = layer.icon
+                    icons[icon] = await loadImage(`./icons/${getIcon(icon_config, layer.icon).filename}`);
 
                     for(let i = 0;i < component_order.length;i++) {
-                        let offset = component_offset[i]
                         let component = getComponentFromLayer(layer, component_order[i])
-
+                        let offset = component_offset[i];
                         for(const position of component.positions) {
-                            let x = (offsets[3] + offset + position[0])*icon_size
-                            let y = (offsets[0] + position[1])*icon_size
+                            let x = offset + position[0];
+                            let y = position[1]
                             if (position.length == 2) {
-                                ctxs[0].drawImage(img, x, y);
-                                ctxs[layer_index].drawImage(img, x, y);
+                                farm_layout[x][y].push([icon])
                             } else {
-                                drawRotatedImage(ctxs[0], img, x, y, position[2]);
-                                drawRotatedImage(ctxs[layer_index], img, x, y, position[2]);
+                                farm_layout[x][y].push([icon, position[2]])
                             }
                         }
                     }
                 }
 
+                // create output
+                let bg = getBackground(bg_config, selected_background);
+                let bg_img = await loadImage(`./backgrounds/${bg.filename}`);
+
+                const guide_layers = farm_config.guide_layers
+                let guide_titles = []
+                let guide_descriptions = []
+                let output_canvases = []
+                let canvases = []
+                let output_ctxs = []
+                let ctxs = []
+                for(let i = 0;i < guide_layers.length;i++) {
+                    let layer = guide_layers[i];
+
+                    const guide_title = document.createElement("label");
+                    guide_title.innerHTML = layer.title;
+                    guide_titles.push(guide_title)
+                    
+                    const guide_description = document.createElement("p");
+                    guide_description.innerHTML = layer.description;
+                    guide_descriptions.push(guide_description)
+
+                    //create canvases
+                    let { canvas, ctx} = createCanvas(`output_canvas_${i}`, canvas_width, canvas_height, image_size_multiplier)
+                    output_canvases.push(canvas)
+                    output_ctxs.push(ctx);
+                    
+                    ({ canvas, ctx} = createCanvas(`canvas_${i}`, canvas_width, canvas_height, image_size_multiplier))
+                    canvases.push(canvas)
+                    ctxs.push(ctx);
+
+                    // draw background
+                    for(let j = 0;j < Math.ceil(canvas_tile_width / bg.width);j++) {
+                        for(let k = 0;k < Math.ceil(canvas_tile_height / bg.height);k++) {
+                            let x = (j*bg.width)*icon_size
+                            let y = (k*bg.height)*icon_size
+                            output_ctxs[i].drawImage(bg_img, x, y);
+                        }
+                    }
+
+                    // draw previous layers
+                    output_ctxs[i].save();
+                    output_ctxs[i].scale(1/image_size_multiplier, 1/image_size_multiplier);
+
+                    output_ctxs[i].globalAlpha = 0.25;
+                    for(let j = 0;j < i;j++) {
+                        output_ctxs[i].drawImage(canvases[j], 0, 0)
+                    }
+                    output_ctxs[i].restore()
+
+                    // draw icons
+                    for(let x = 0;x < farm_layout.length;x++) {
+                        for(let y = 0;y < farm_layout[0].length;y++) {
+                            for(let icon of farm_layout[x][y]) {
+                                if (layer.icons.includes(icon[0])) {
+                                    let x_pix = (offsets[3] + x)*icon_size
+                                    let y_pix = (offsets[0] + y)*icon_size
+                                    let image = icons[icon[0]]
+
+                                    if (icon.length == 1) {
+                                        ctxs[i].drawImage(image, x_pix, y_pix);
+                                    } else {
+                                        drawRotatedImage(ctxs[i], image, x_pix, y_pix, icon[1]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // draw icons to output
+                    output_ctxs[i].save();
+                    output_ctxs[i].scale(1/image_size_multiplier, 1/image_size_multiplier);
+                    output_ctxs[i].drawImage(canvases[i], 0, 0)
+                    output_ctxs[i].restore()
+
+                }
+
+                // create full farm picture
+                let { canvas, ctx} = createCanvas("canvas_main", canvas_width, canvas_height, 1)
+                if (canvases.length > 0) ctx.drawImage(output_canvases[0], 0, 0)
+
+                for(let i = 0;i < canvases.length;i++) {
+                    if (canvases.length != 0) ctx.drawImage(canvases[i], 0, 0)
+                }
+
+                // display output
+                const output_div = document.getElementById("output_layers");
+                output_div.innerHTML = "";
+
+                const output_header = document.createElement("h3");
+                output_header.textContent = "Layout overview (Step by step guide below)";
+                output_div.appendChild(output_header);
+
+                output_div.appendChild(canvas);
+
+                const guide_header = document.createElement("h3");
+                guide_header.textContent = "Step by step guide";
+                output_div.appendChild(guide_header);
+
+                for(let i = 0;i < guide_layers.length;i++) {
+                    output_div.appendChild(guide_titles[i]);
+                    output_div.appendChild(guide_descriptions[i]);
+                    output_div.appendChild(output_canvases[i])
+                }
+
             })
             .catch(err => console.error("Failed to load JSON files", err));
             
+        }
+
+        function createCanvas(name, width, height, image_size_multiplier) {
+            let canvas = document.createElement("canvas");
+            canvas.id = name;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.display = "block";
+            canvas.style.marginBottom = "10px";
+
+            let ctx = canvas.getContext("2d");
+            ctx.scale(image_size_multiplier, image_size_multiplier);
+            ctx.imageSmoothingEnabled = false;
+            return {canvas, ctx}
         }
 
         function drawRotatedImage(ctx, img, x, y, rotation) {

@@ -24,7 +24,7 @@ body {
 
 #output_layers {
     background-color: #ffffff;
-    padding: 30px 40px;
+    padding: 10px 40px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     padding-bottom: 40px;
@@ -174,15 +174,15 @@ span {
     color: #34495e;
 }
 
-.output-wrapper {
+.output_wrapper {
     overflow-x: auto;
     max-width: 100%;
 }
 
-#info_farm_name {
+h3 {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
     color: #2c3e50;
 }
 
@@ -191,4 +191,8 @@ p {
     color: #555;
     margin-bottom: 6px;
     line-height: 1.5;
+    display: block;
+    white-space: normal;          /* allow wrapping */
+    word-break: break-all;        /* break anywhere, even inside a word */
+    overflow-wrap: anywhere;      /* modern equivalent */
 }
