@@ -5,7 +5,7 @@
         "description": "Info panel description",
         "creator": "XXX",
         "output_rate": {
-            "text": "XXX per hour: ",
+            "text": "xxx per hour: ",
             "scaling": 1
         },
         "rating": {

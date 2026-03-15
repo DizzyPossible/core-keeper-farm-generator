@@ -5,7 +5,7 @@
         "description": "A simple critter farm that focuses on resource efficiency. Crops can be provided anywhere in the cycle.",
         "creator": "Dizzy",
         "output_rate": {
-            "text": "Critters per hour: ",
+            "text": "critters per hour: ",
             "scaling": 20
         },
         "rating": {

@@ -5,7 +5,7 @@
         "description": "A space efficient fish farm that scales well. Can collect up to five different types of fish.",
         "creator": "Dizzy",
         "output_rate": {
-            "text": "Fish per hour: ",
+            "text": "fish per hour: ",
             "scaling": 23.5
         },
         "rating": {
