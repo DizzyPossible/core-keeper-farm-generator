@@ -22,6 +22,7 @@
             "enabled": false,
             "label": "Number of XXX",
             "min": 4,
+            "selector_min": 4,
             "max": 100,
             "step": 4
         },
@@ -30,19 +31,31 @@
                 "name": "left_end",
                 "type": "base",
                 "width": 3,
-                "height": 5
+                "height": 5,
+                "scaling": {
+                    "offset_x": 3,
+                    "offset_y": 0
+                } 
             },
             {
                 "name": "middle",
                 "type": "scale_x",
                 "width": 6,
-                "height": 5
+                "height": 5,
+                "scaling": {
+                    "offset_x": 6,
+                    "offset_y": 0
+                } 
             },
             {
                 "name": "right_end",
                 "type": "base",
                 "width": 4,
-                "height": 5
+                "height": 5,
+                "scaling": {
+                    "offset_x": 0,
+                    "offset_y": 0
+                } 
             }
         ]
     },

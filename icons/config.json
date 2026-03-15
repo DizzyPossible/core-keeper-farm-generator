@@ -38,6 +38,12 @@
             "height": 16
         },
         {
+            "name": "robot_arm_orange",
+            "filename": "robot_arm_orange.png",
+            "width": 16,
+            "height": 16
+        },
+        {
             "name": "item_collector_purple",
             "filename": "item_collector_purple.png",
             "width": 16,

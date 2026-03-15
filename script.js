@@ -32,7 +32,13 @@ function updateInfoPanel() {
         document.getElementById("info_table_output_rating").textContent = "★".repeat(rating.output_rate) + "☆".repeat(4 - rating.output_rate);
         document.getElementById("info_table_resource_rating").textContent = "★".repeat(rating.resource_efficiency) + "☆".repeat(4 - rating.resource_efficiency);
 
-        document.getElementById("explanation_link").href = farm_config.explanation_link;
+        const link = document.getElementById("explanation_link");
+        if (farm_config.explanation_link) {
+            link.href = farm_config.explanation_link;
+            link.style.display = "inline-block";
+        } else {
+            link.style.display = "none";
+        }
 
         document.getElementById("info_creator").textContent = "Design by: " + farm_config.info.creator;
 
@@ -78,12 +84,12 @@ function farm_selection_changed() {
         if (scale_x_config.enabled) {
             scale_x_slider_label.style = ""
             scale_x_slider_label_text.textContent  = scale_x_config.label
-            scale_x_slider_label_value.textContent  = scale_x_config.min
+            scale_x_slider_label_value.textContent  = scale_x_config.selector_min
             scale_x_slider.style = ""
-            scale_x_slider.min = scale_x_config.min
+            scale_x_slider.min = scale_x_config.selector_min
             scale_x_slider.max = scale_x_config.max
             scale_x_slider.step = scale_x_config.step
-            scale_x_slider.value = scale_x_config.min
+            scale_x_slider.value = scale_x_config.selector_min
 
         } else {
             scale_x_slider_label.style = "display:none"
@@ -110,21 +116,24 @@ function getFarmComponents(farm_config) {
 
     let component_order = []
     let component_offset = []
-    let current_offset = 0
+    let current_offset_x = 0
+    let current_offset_y = 0
     for(let component of farm_components) {
         if (component.type == "base") {
             component_order.push(component.name)
-            component_offset.push(current_offset)
-            current_offset += component.width
+            component_offset.push([current_offset_x, current_offset_y])
+            current_offset_x += component.scaling.offset_x
+            current_offset_y += component.scaling.offset_y
         } else if (component.type == "scale_x") {
             for(let i = 0;i < scale_x;i++) {
                 component_order.push(component.name)
-                component_offset.push(current_offset)
-                current_offset += component.width
+                component_offset.push([current_offset_x, current_offset_y])
+                current_offset_x += component.scaling.offset_x
+                current_offset_y += component.scaling.offset_y
             }
         }
     }
-    return { component_order, component_offset, tile_width: current_offset, tile_height: farm_components[0].height }
+    return { component_order, component_offset, tile_width: current_offset_x + farm_components[farm_components.length-1].width, tile_height: current_offset_y + farm_components[farm_components.length-1].height }
 }
 
 function generate_farm() {
@@ -178,10 +187,11 @@ function generate_farm() {
 
             for(let i = 0;i < component_order.length;i++) {
                 let component = getComponentFromLayer(layer, component_order[i])
-                let offset = component_offset[i];
+                let offset_x = component_offset[i][0];
+                let offset_y = component_offset[i][1];
                 for(const position of component.positions) {
-                    let x = offset + position[0];
-                    let y = position[1]
+                    let x = offset_x + position[0];
+                    let y = offset_y + position[1]
                     if (position.length == 2) {
                         farm_layout[x][y].push([icon])
                     } else {
